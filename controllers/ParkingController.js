@@ -5,6 +5,10 @@ var Task = function (task) {
     this.task = task.task;
 };
 
+Task.getTicketDetailByCode = async function getTicketDetailByCode(data, result) {
+    var ticket_datail = await Parking.getTicketDetailByCode(data);
+    result(ticket_datail);
+}
 
 Task.insertParking = async function insertParking(data, result) {
     for (var i = 0; i <= data.spot_number.length - 1; i++) {

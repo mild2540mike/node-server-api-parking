@@ -71,16 +71,33 @@ Task.getPlateByCode = function getPlateByCode(data) {
     });
 }
 
-Task.getStatusBy = function getStatusBy(data) {
+Task.getTicketDetailByCode = function getTicketDetailByCode(data) {
     return new Promise(function (resolve, reject) {
-        var str = "SELECT t1.license_plate AS check_plate FROM vehicles t1 WHERE t1.license_plate = '" + data.license_plate + "' ";
+        var str = "SELECT t1.ticket_id, t1.start_time, t2.license_plate, t2.make, t2.model, t2.color, "
+        + " t3.price AS cost_per_day, t3.vehicle_type, t4.spot_number, t4.`floor` FROM parking_tickets t1 "
+        + " JOIN vehicles t2 ON t1.vehicles_id = t2.vehicles_id "
+        + " JOIN vehicles_types t3 ON t2.type_id = t3.type_id "
+        + " JOIN parking_lots t4 ON t1.parking_id = t4.parking_id "
+        + " WHERE t2.license_plate = '" + data.license_plate + "'"; 
         sql.query(str, function (err, res) {
             if (err) {
                 console.log("error: ", err);
-                resolve(err);
+                const require = {
+                    data: [],
+                    error: err,
+                    query_result: false,
+                    server_result: true
+                };
+                resolve(require);
             }
-            else {                
-                resolve(res[0].check_plate);
+            else {
+                const require = {
+                    data: res,
+                    error: [],
+                    query_result: true,
+                    server_result: true
+                };
+                resolve(require);
             }
         });
     });
