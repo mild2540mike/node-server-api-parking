@@ -55,7 +55,8 @@ Task.UpdateParkingTicket = async function UpdateParkingTicket(data, result) {
     var ticket_Code = await Parking.getTicketByCode(data);
     var parkingBy_Code = await Parking.getParkingByCode(data);
     var paid = await Parking.getPriceByCode(data);
-    var response = await Parking.UpdateParkingTicket(data, ticket_Code, parkingBy_Code, paid);
+    var check_plate = await Parking.getPlateByCode(data);
+    var response = await Parking.UpdateParkingTicket(data, ticket_Code, parkingBy_Code, paid, check_plate);
     result(response);  
 }
 
