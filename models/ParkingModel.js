@@ -78,7 +78,41 @@ Task.getTicketDetailByCode = function getTicketDetailByCode(data) {
         + " JOIN vehicles t2 ON t1.vehicles_id = t2.vehicles_id "
         + " JOIN vehicles_types t3 ON t2.type_id = t3.type_id "
         + " JOIN parking_lots t4 ON t1.parking_id = t4.parking_id "
-        + " WHERE t2.license_plate = '" + data.license_plate + "'"; 
+        + " WHERE t2.license_plate = '" + data.license_plate + "' "
+        + " ORDER BY t1.start_time DESC LIMIT 1"; 
+        sql.query(str, function (err, res) {
+            if (err) {
+                console.log("error: ", err);
+                const require = {
+                    data: [],
+                    error: err,
+                    query_result: false,
+                    server_result: true
+                };
+                resolve(require);
+            }
+            else {
+                const require = {
+                    data: res,
+                    error: [],
+                    query_result: true,
+                    server_result: true
+                };
+                resolve(require);
+            }
+        });
+    });
+}
+
+Task.getTicketDetailCheckOutByCode = function getTicketDetailCheckOutByCode(data) {
+    return new Promise(function (resolve, reject) {
+        var str = "SELECT t1.vehicles_id, t1.license_plate, t1.make, t1.model, t1.color, t1.type_id, t1.`status`, t2.vehicle_type, t2.price, t3.paid, t3.start_time, t3.end_time, t4.spot_number, t4.`status`, t4.`floor` "
+        + " FROM vehicles t1 "
+        + " JOIN vehicles_types t2 ON t1.type_id = t2.type_id "
+        + " JOIN parking_tickets t3 ON t1.vehicles_id = t3.vehicles_id "
+        + " JOIN parking_lots t4 ON t3.parking_id = t4.parking_id "
+        + " WHERE t1.license_plate = '" + data.license_plate + "' "
+        + " ORDER BY t3.end_time DESC LIMIT 1"; 
         sql.query(str, function (err, res) {
             if (err) {
                 console.log("error: ", err);
@@ -333,7 +367,7 @@ Task.getParkingCode = function getParkingCode(data) {
 
 Task.getPriceByCode = function getPriceByCode(data) {
     return new Promise(function (resolve, reject) {
-        var str = "SELECT t1.vehicles_id, (TIMESTAMPDIFF(HOUR, t1.start_time, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))) * (SELECT (t2.price/24) AS price FROM vehicles_types t2 WHERE t2.type_id = (SELECT tbl1.type_id FROM vehicles tbl1 WHERE tbl1.license_plate = '" + data.license_plate + "' AND tbl1.`status` = 'in')) AS paid "
+        var str = "SELECT t1.vehicles_id, (TIMESTAMPDIFF(HOUR, t1.start_time, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))) * (SELECT FORMAT((t2.price/24), 2) AS price FROM vehicles_types t2 WHERE t2.type_id = (SELECT tbl1.type_id FROM vehicles tbl1 WHERE tbl1.license_plate = '" + data.license_plate + "' AND tbl1.`status` = 'in')) AS paid "
         + " FROM parking_tickets t1 "
         + " WHERE t1.vehicles_id = (SELECT tbl1.vehicles_id FROM vehicles tbl1 WHERE tbl1.license_plate = '" + data.license_plate + "' AND tbl1.`status` = 'in')";
         sql.query(str, function (err, res) {

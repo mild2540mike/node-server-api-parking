@@ -30,7 +30,13 @@ Task.insertParkingTicket = async function insertParkingTicket(data, result) {
     if (parking_Code !== null) {
         if (data.license_plate !== check_plate) {
             var response = await Parking.insertParkingTicket(data, last_vehicle, last_ticket, parking_Code);
-            result(response); 
+
+            if (response.query_result === true) {
+                var ticket_datail = await Parking.getTicketDetailByCode(data);
+            result(ticket_datail);
+            } else {
+                result(response)
+            }
         } else {
             const require = {
                 data: "duplicate license plate",
@@ -57,7 +63,16 @@ Task.UpdateParkingTicket = async function UpdateParkingTicket(data, result) {
     var paid = await Parking.getPriceByCode(data);
     var check_plate = await Parking.getPlateByCode(data);
     var response = await Parking.UpdateParkingTicket(data, ticket_Code, parkingBy_Code, paid, check_plate);
-    result(response);  
+    console.log(response);
+    // result(response);
+
+    if (response.query_result === true) {
+        var checkout_ticket = await Parking.getTicketDetailCheckOutByCode(data)
+        result(checkout_ticket);  
+    } else {
+        result(response);
+    }
+    
 }
 
 module.exports = Task;
